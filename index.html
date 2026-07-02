@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Mila 💜</title>
+<style>
+  :root {
+    --purple: #7c3aed;
+    --purple-dark: #5b21b6;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #ffffff;
+    font-family: "Comic Sans MS", "Trebuchet MS", "Segoe UI", sans-serif;
+  }
+
+  #stage {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  #card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  #question {
+    font-size: clamp(22px, 4vw, 36px);
+    color: #333;
+    margin: 0 0 28px 0;
+  }
+
+  #runText {
+    margin-top: 22px;
+    font-size: clamp(20px, 3.5vw, 30px);
+    font-weight: bold;
+    color: var(--purple-dark);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  #runText.show { opacity: 1; }
+
+  /* --- the fleeing button --- */
+  #colorBtn {
+    position: relative;
+    padding: 16px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(180deg, var(--purple), var(--purple-dark));
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 var(--purple-dark), 0 8px 14px rgba(0,0,0,0.2);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+
+  #colorBtn.fleeing {
+    position: fixed;
+    transition: top 0.35s ease-in-out, left 0.35s ease-in-out;
+    z-index: 10;
+  }
+
+  #colorBtn.hidden { display: none; }
+
+  .leg {
+    position: absolute;
+    bottom: -18px;
+    width: 8px;
+    height: 20px;
+    background: var(--purple-dark);
+    border-radius: 4px;
+    opacity: 0;
+    transform-origin: top center;
+    transition: opacity 0.2s ease;
+  }
+  .leg.left { left: 30%; }
+  .leg.right { right: 30%; }
+
+  #colorBtn.fleeing .leg { opacity: 1; }
+
+  #colorBtn.fleeing .leg.left {
+    animation: legSwingL 0.28s infinite alternate ease-in-out;
+  }
+  #colorBtn.fleeing .leg.right {
+    animation: legSwingR 0.28s infinite alternate ease-in-out;
+  }
+
+  @keyframes legSwingL {
+    from { transform: rotate(-35deg); }
+    to   { transform: rotate(25deg); }
+  }
+  @keyframes legSwingR {
+    from { transform: rotate(35deg); }
+    to   { transform: rotate(-25deg); }
+  }
+
+  /* --- minion --- */
+  #minionWrap {
+    position: fixed;
+    width: 130px;
+    height: 190px;
+    display: none;
+    z-index: 20;
+    transition: top 0.35s ease-in-out, left 0.35s ease-in-out;
+  }
+
+  #minionWrap.running .minion-legs .mleg {
+    animation: legSwingL 0.25s infinite alternate ease-in-out;
+  }
+
+  .minion { position: relative; width: 100%; height: 100%; }
+
+  .minion-body,
+  .minion-overalls,
+  .minion-pocket,
+  .minion-goggle-band,
+  .minion-eye,
+  .minion-pupil,
+  .minion-mouth,
+  .minion-hair,
+  .minion-arm,
+  .minion-legs,
+  .mleg,
+  .minion-helmet,
+  .helmet-dome,
+  .helmet-brim {
+    pointer-events: none;
+  }
+
+  .minion-body {
+    position: absolute;
+    top: 40px;
+    left: 15px;
+    width: 100px;
+    height: 120px;
+    background: linear-gradient(180deg, #ffe14d, #ffd11a);
+    border-radius: 45px / 55px;
+    border: 3px solid #d9b400;
+  }
+
+  .minion-overalls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 45px;
+    background: #2f6fd6;
+    border-radius: 0 0 42px 42px;
+    border-top: 3px solid #1e4fa3;
+  }
+
+  .minion-pocket {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26px;
+    height: 18px;
+    background: #2559ad;
+    border-radius: 4px;
+  }
+
+  .minion-goggle-band {
+    position: absolute;
+    top: 34px;
+    left: -6px;
+    width: 112px;
+    height: 20px;
+    background: #444;
+    border-radius: 4px;
+  }
+
+  .minion-eye {
+    position: absolute;
+    top: 22px;
+    left: 30px;
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    border-radius: 50%;
+    border: 3px solid #999;
+  }
+
+  .minion-pupil {
+    position: absolute;
+    top: 12px;
+    left: 20px;
+    width: 16px;
+    height: 16px;
+    background: #4a2f18;
+    border-radius: 50%;
+  }
+  .minion-pupil::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 6px;
+    height: 6px;
+    background: #000;
+    border-radius: 50%;
+  }
+
+  .minion-mouth {
+    position: absolute;
+    top: 90px;
+    left: 35px;
+    width: 30px;
+    height: 16px;
+    border-bottom: 4px solid #a05a00;
+    border-radius: 0 0 20px 20px;
+    transform: rotate(-8deg);
+  }
+
+  .minion-hair {
+    position: absolute;
+    top: -6px;
+    left: 40px;
+    width: 4px;
+    height: 22px;
+    background: #2b2b2b;
+    border-radius: 2px;
+    transform: rotate(-15deg);
+  }
+  .minion-hair::before, .minion-hair::after {
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 18px;
+    background: #2b2b2b;
+    border-radius: 2px;
+  }
+  .minion-hair::before { left: -10px; top: 3px; transform: rotate(-18deg); }
+  .minion-hair::after { left: 10px; top: 3px; transform: rotate(18deg); }
+
+  .minion-arm {
+    position: absolute;
+    top: 65px;
+    width: 14px;
+    height: 40px;
+    background: #ffd11a;
+    border: 2px solid #d9b400;
+    border-radius: 8px;
+  }
+  .minion-arm.left { left: -4px; transform: rotate(20deg); }
+  .minion-arm.right { right: -4px; transform: rotate(-20deg); }
+
+  .minion-legs { position: absolute; bottom: -10px; left: 0; width: 100%; }
+  .mleg {
+    position: absolute;
+    bottom: 0;
+    width: 12px;
+    height: 22px;
+    background: #222;
+    border-radius: 3px;
+    transform-origin: top center;
+  }
+  .mleg.left { left: 32px; }
+  .mleg.right { right: 32px; }
+
+  /* funny hard hat */
+  .minion-helmet {
+    position: absolute;
+    top: -6px;
+    left: 18px;
+    width: 96px;
+    transform: rotate(-18deg);
+  }
+  .helmet-dome {
+    width: 76px;
+    height: 42px;
+    background: linear-gradient(180deg, #ff8a00, #e65c00);
+    border-radius: 50px 50px 6px 6px;
+    border: 2px solid #a03e00;
+  }
+  .helmet-brim {
+    width: 96px;
+    height: 12px;
+    margin-top: -4px;
+    background: #cc4d00;
+    border-radius: 8px;
+    border: 2px solid #a03e00;
+  }
+
+  /* speech bubble */
+  #bubble {
+    position: absolute;
+    top: -78px;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 180px;
+    max-width: 260px;
+    background: #fff;
+    border: 3px solid #333;
+    border-radius: 16px;
+    padding: 10px 14px;
+    font-size: 15px;
+    text-align: center;
+    color: #222;
+    opacity: 0;
+    z-index: 5;
+    transition: opacity 0.3s ease;
+  }
+  #bubble.show { opacity: 1; }
+  #bubble::after {
+    content: "";
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 14px 10px 0 10px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+  }
+  #bubble::before {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 11px 8px 0 8px;
+    border-style: solid;
+    border-color: #fff transparent transparent transparent;
+    z-index: 1;
+  }
+
+  #bubbleText { margin: 0 0 8px 0; line-height: 1.3; }
+
+  #yesBtn {
+    display: none;
+    padding: 6px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background: #2f9e44;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  #yesBtn:active { transform: translateY(1px); }
+
+  #replay {
+    position: fixed;
+    bottom: 10px;
+    right: 14px;
+    font-size: 12px;
+    color: #bbb;
+    cursor: pointer;
+    z-index: 30;
+    user-select: none;
+  }
+  #replay:hover { color: #888; }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div id="card">
+      <p id="question">What's your favorite color? 🎨</p>
+      <button id="colorBtn">
+        Purple 💜
+        <span class="leg left"></span>
+        <span class="leg right"></span>
+      </button>
+      <p id="runText">run awayyyyyyy 🏃💨</p>
+    </div>
+
+    <div id="minionWrap">
+      <div class="minion">
+        <div id="bubble">
+          <p id="bubbleText"></p>
+          <button id="yesBtn">Yes</button>
+        </div>
+        <div class="minion-helmet">
+          <div class="helmet-dome"></div>
+          <div class="helmet-brim"></div>
+        </div>
+        <div class="minion-hair"></div>
+        <div class="minion-arm left"></div>
+        <div class="minion-arm right"></div>
+        <div class="minion-body">
+          <div class="minion-goggle-band"></div>
+          <div class="minion-eye"><div class="minion-pupil"></div></div>
+          <div class="minion-mouth"></div>
+          <div class="minion-overalls">
+            <div class="minion-pocket"></div>
+          </div>
+        </div>
+        <div class="minion-legs">
+          <span class="mleg left"></span>
+          <span class="mleg right"></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="replay">↺ replay</div>
+  </div>
+
+<script>
+(function () {
+  var btn = document.getElementById('colorBtn');
+  var runText = document.getElementById('runText');
+  var minionWrap = document.getElementById('minionWrap');
+  var bubble = document.getElementById('bubble');
+  var bubbleText = document.getElementById('bubbleText');
+  var yesBtn = document.getElementById('yesBtn');
+  var replay = document.getElementById('replay');
+
+  var fleeInterval = null;
+  var minionTimer = null;
+  var started = false;
+  var minionRunInterval = null;
+
+  function randomPos(elWidth, elHeight, margin) {
+    margin = margin || 10;
+    var maxLeft = Math.max(margin, window.innerWidth - elWidth - margin);
+    var maxTop = Math.max(margin, window.innerHeight - elHeight - margin);
+    var left = margin + Math.random() * (maxLeft - margin);
+    var top = margin + Math.random() * (maxTop - margin);
+    return { top: top, left: left };
+  }
+
+  function moveButton() {
+    var w = btn.offsetWidth || 160;
+    var h = btn.offsetHeight || 56;
+    var pos = randomPos(w, h);
+    btn.style.top = pos.top + 'px';
+    btn.style.left = pos.left + 'px';
+  }
+
+  function startFleeing() {
+    if (started) return;
+    started = true;
+
+    btn.classList.add('fleeing');
+
+    var rect = btn.getBoundingClientRect();
+    btn.style.top = rect.top + 'px';
+    btn.style.left = rect.left + 'px';
+
+    requestAnimationFrame(moveButton);
+
+    runText.classList.add('show');
+
+    fleeInterval = setInterval(moveButton, 650);
+
+    minionTimer = setTimeout(showMinion, 10000);
+  }
+
+  btn.addEventListener('mouseenter', function (e) {
+    if (!started) { startFleeing(); }
+    else { moveButton(); }
+  });
+
+  btn.addEventListener('click', function (e) {
+    if (!started) { startFleeing(); }
+    else { moveButton(); }
+  });
+
+  btn.addEventListener('touchstart', function (e) {
+    e.preventDefault();
+    if (!started) { startFleeing(); }
+    else { moveButton(); }
+  }, { passive: false });
+
+  function showMinion() {
+    clearInterval(fleeInterval);
+    fleeInterval = null;
+    btn.classList.add('hidden');
+
+    var corners = [
+      { top: window.innerHeight - 200, left: -160 },
+      { top: window.innerHeight - 200, left: window.innerWidth + 40 }
+    ];
+    var start = corners[Math.floor(Math.random() * corners.length)];
+    var end = { top: window.innerHeight - 200, left: start.left < 0 ? 20 : window.innerWidth - 150 };
+
+    minionWrap.style.display = 'block';
+    minionWrap.style.transition = 'none';
+    minionWrap.style.top = start.top + 'px';
+    minionWrap.style.left = start.left + 'px';
+    minionWrap.classList.add('running');
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        minionWrap.style.transition = 'top 0.9s ease-out, left 0.9s ease-out';
+        minionWrap.style.top = end.top + 'px';
+        minionWrap.style.left = end.left + 'px';
+      });
+    });
+
+    setTimeout(function () {
+      minionWrap.classList.remove('running');
+      bubbleText.textContent = 'hey mila';
+      bubble.classList.add('show');
+
+      setTimeout(function () {
+        bubbleText.textContent = 'I am here by order of the fish, do you have a problem?';
+        yesBtn.style.display = 'inline-block';
+      }, 1400);
+    }, 1000);
+  }
+
+  yesBtn.addEventListener('click', function () {
+    bubbleText.textContent = 'eeee Bana ne! 🍌';
+    yesBtn.style.display = 'none';
+
+    minionWrap.classList.add('running');
+    minionWrap.style.transition = 'top 0.4s ease-in-out, left 0.4s ease-in-out';
+
+    function moveMinion() {
+      var w = minionWrap.offsetWidth || 130;
+      var h = minionWrap.offsetHeight || 190;
+      var pos = randomPos(w, h, 5);
+      minionWrap.style.top = pos.top + 'px';
+      minionWrap.style.left = pos.left + 'px';
+    }
+
+    if (minionRunInterval) clearInterval(minionRunInterval);
+    minionRunInterval = setInterval(moveMinion, 500);
+  });
+
+  replay.addEventListener('click', function () {
+    location.reload();
+  });
+})();
+</script>
+</body>
+</html>
