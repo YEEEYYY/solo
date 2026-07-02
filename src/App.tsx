@@ -63,7 +63,7 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             className="fixed top-10 left-1/2 -translate-x-1/2 z-30 text-2xl sm:text-3xl font-bold text-pink-700 select-none pointer-events-none"
           >
-            eeee Bana ne! 🍌
+            eeee Bana ne!
           </motion.p>
         )}
       </AnimatePresence>
